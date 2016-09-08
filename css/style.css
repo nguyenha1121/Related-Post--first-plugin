@@ -1,0 +1,20 @@
+#masthead{
+	
+}
+#owl-demo .item a{
+	display: flex;
+	box-shadow: none;
+	background: #f2f2f2;
+}
+#owl-demo .item a p{
+	margin: 20px 20px;
+	word-wrap: wrap;
+}
+#owl-demo .item{
+	background: #f2f2f2;
+	height: 150px;
+	margin: 3px;
+}
+#owl-demo .owl-item{
+
+}

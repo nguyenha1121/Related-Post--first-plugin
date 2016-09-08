@@ -41,9 +41,9 @@ class MySettingsPage
         // This page will be under "Settings"
         add_options_page(
             'Settings Admin', 
-            'My Settings', 
+            'Related posts setting', 
             'manage_options', 
-            'my-setting-admin', 
+            'RP_setting_admin', 
             array( $this, 'create_admin_page' )
         );
     }
@@ -62,7 +62,7 @@ class MySettingsPage
             <?php
                 // This prints out all hidden setting fields
                 settings_fields( 'my_option_group' );
-                do_settings_sections( 'my-setting-admin' );
+                do_settings_sections( 'RP_setting_admin' );
                 submit_button();
             ?>
             </form>
@@ -85,14 +85,14 @@ class MySettingsPage
             'setting_section_id', // ID
             'Related posts for ?', // Title
             array( $this, 'print_section_info' ), // Callback
-            'my-setting-admin' // Page
+            'RP_setting_admin' // Page
         );  
 
         add_settings_field(
-            'id_number', // ID
-            'Select (default : Tag)', // Title 
-            array( $this, 'id_number_callback' ), // Callback
-            'my-setting-admin', // Page
+            'seclects', // ID
+            'Select (default : Dissable)', // Title 
+            array( $this, 'seclects_callback' ), // Callback
+            'RP_setting_admin', // Page
             'setting_section_id' // Section           
         );      
      
@@ -106,8 +106,8 @@ class MySettingsPage
     public function sanitize( $input )
     {
         $new_input = array();
-        if( isset( $input['id_number'] ) )
-            $new_input['id_number'] =  $input['id_number'] ;
+        if( isset( $input['seclects'] ) )
+            $new_input['seclects'] =  $input['seclects'] ;
 
         if( isset( $input['title'] ) )
             $new_input['title'] = sanitize_text_field( $input['title'] );
@@ -126,24 +126,33 @@ class MySettingsPage
     /** 
      * Get the settings option array and print one of its values
      */
-    public function id_number_callback(){
+    public function seclects_callback(){
         $check1 = '';
-        $check2 = 'checked="checked';
-        //var_dump($this->options['id_number']);
-        var_dump(get_option('id_number'));
-        if($this->options['id_number']=="cat"){
+        $check2 = '';
+        $check3 = 'checked="checked';
+        //var_dump($this->options['seclects']);
+        //var_dump(get_option('seclects'));
+        if($this->options['seclects']=="cat"){
                 $check1 = 'checked="checked"';
                 $check2 = "";
+                $check3 = "";
         }
-        else {
+        elseif($this->options['seclects']=="tag") {
                 $check2 = 'checked="checked"';
                 $check1 = "";
+                $check3 = "";
+        }
+        else{
+            $check1 = "";
+            $check2 = "";
+            $check3 = 'checked="checked"';
         }
         //var_dump($check1);
         //var_dump($check2);
-        var_dump($this->options['id_number']);
-        echo '<input type="radio" id="id_number" name="my_option_name[id_number]" value="tag" '.$check2.' />'.'Tag&nbsp;'.'<br>';
-        echo '<input type="radio" id="id_number" name="my_option_name[id_number]" value="cat" '.$check1.' />'.'Catogories&nbsp;';
+        //var_dump($this->options['seclects']);
+        echo '<input type="radio" id="seclects" name="my_option_name[seclects]" value="tag" '.$check2.' />'.'Tag&nbsp;'.'<br>';
+        echo '<input type="radio" id="seclects" name="my_option_name[seclects]" value="cat" '.$check1.' />'.'Catogories&nbsp;'.'<br>';
+        echo '<input type="radio" id="seclects" name="my_option_name[seclects]" value="dissable" '.$check3.' />'.'Dissable&nbsp;';
         //var_dump($this->options);
     }
       public function hello_func($atts = array(), $content = null) { 
@@ -151,8 +160,8 @@ class MySettingsPage
                 return '';
         }
         $em = get_option('my_option_name');
-        var_dump($em['id_number']);
-        if($em['id_number']=="cat"){
+        //var_dump($em['seclects']);
+        if($em['seclects']=="cat"){
                ?>
                 <div>  
                     <h3>Related posts</h3>  
@@ -173,26 +182,30 @@ class MySettingsPage
                         'posts_per_page'=>4, // Số bài viết liên quan muốn hiển thị.  
                         'caller_get_posts'=>1  
                         );  
-                 
+                        ?>
+                        <div id="owl-demo" class="owl-carousel owl-theme">   
+                        <?php
                         $my_query = new wp_query( $args );  
                         //var_dump($my_query);
                         while( $my_query->have_posts() ) {  
                         $my_query->the_post();  
-                        ?>          
-                        <div>  
-                            <a rel="external" href="<? the_permalink()?>"><?php the_post_thumbnail(array(150,100)); ?><br />  
-                            <?php the_title(); ?>  
+                        ?>       
+                        <div class="item">  
+                            <a rel="external" href="<? the_permalink()?>"><?php the_post_thumbnail('thumbnail'); ?><br />  
+                            <p><?php the_title(); ?> </p> 
                             </a>  
-                        </div>        
+                        </div> 
+                              
                         <?php }  
                         }  
                         $post = $orig_post;  
                         wp_reset_query();  
                         ?>  
+                    </div> 
                 </div>
                 <?php  
         }
-        else {
+        elseif($em['seclects']=="tag") {
              ?>
                 <div>  
                     <h3>Related posts</h3>  
@@ -212,15 +225,18 @@ class MySettingsPage
                         'posts_per_page'=>4, // Số bài viết liên quan muốn hiển thị.  
                         'caller_get_posts'=>1  
                         );  
-                 
+                        ?>
+                        <div id="owl-demo" class="owl-carousel owl-theme">
+                        <?php
                         $my_query = new wp_query( $args );  
                         //var_dump($my_query);
                         while( $my_query->have_posts() ) {  
                         $my_query->the_post();  
-                        ?>          
-                        <div>  
-                            <a rel="external" href="<? the_permalink()?>"><?php the_post_thumbnail(array(150,100)); ?><br />  
-                            <?php the_title(); ?>  
+                        ?>   
+                               
+                        <div class="item">  
+                            <a rel="external" href="<? the_permalink()?>"><?php the_post_thumbnail(array('thumbnail')); ?><br />  
+                            <p><?php the_title(); ?>  </p>
                             </a>  
                         </div>        
                         <?php }  
@@ -228,9 +244,13 @@ class MySettingsPage
                         $post = $orig_post;  
                         wp_reset_query();  
                         ?>  
+                        </div>
                 </div>
                 <?php  
-                };
+                }
+                elseif($em['seclects']=="dissable"){
+                    return "";
+                }
         }
 
     /** 
@@ -243,8 +263,21 @@ class MySettingsPage
 function rp_load() {
         global $rp;
         $rp = new MySettingsPage();
-        // global $st;
-        // $st = $this->options['id_number'];
 }
 add_action( 'plugins_loaded', 'rp_load' );
-?>
+
+
+function enqueue_scripts_and_styles()
+{
+        wp_register_style( 'rp-foundation', plugins_url( '/Related-Post--first-plugin/css/style.css'));
+        wp_enqueue_style( 'rp-foundation' );
+        //wp_register_style( 'rp', get_style_uri(), array(), get_theme_version() );
+        wp_enqueue_style( 'rp' );
+        wp_enqueue_script( 'owl-js', plugins_url('/Related-Post--first-plugin/OwlCarousel-master/owl-carousel/owl.carousel.js') , array('jquery'), '20151215', true );
+
+        wp_enqueue_style( 'owl-theme', plugins_url( '/Related-Post--first-plugin/OwlCarousel-master/owl-carousel/owl.carousel.css') );
+        wp_enqueue_script('jquery');
+        wp_enqueue_script( 'custom', plugins_url('/Related-Post--first-plugin/js/script.js') , array('jquery'), '20151215', true );
+ 
+}
+add_action( 'wp_enqueue_scripts', 'enqueue_scripts_and_styles' );
